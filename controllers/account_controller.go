@@ -110,3 +110,21 @@ func (ac *AccountController) UpdateAccount(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "account updated"})
 }
+
+func (ac *AccountController) DeleteAccount(c *gin.Context) {
+	ctx := context.Background()
+
+	id, err := primitive.ObjectIDFromHex(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	_, err = ac.col.DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "account deleted"})
+}

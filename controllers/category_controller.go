@@ -64,3 +64,48 @@ func (tc *CategoryController) CreateCategory(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"id": result.InsertedID})
 }
+
+func (cc *CategoryController) UpdateCategory(c *gin.Context) {
+	ctx := context.Background()
+
+	id, err := primitive.ObjectIDFromHex(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	var category models.Category
+	if err := c.ShouldBindBodyWithJSON(&category); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	_, err = cc.col.UpdateOne(
+		ctx,
+		bson.M{"_id": id},
+		bson.M{"$set": category},
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "category updated"})
+}
+
+func (cc *CategoryController) DeleteCategory(c *gin.Context) {
+	ctx := context.Background()
+
+	id, err := primitive.ObjectIDFromHex(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	_, err = cc.col.DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "category deleted"})
+}

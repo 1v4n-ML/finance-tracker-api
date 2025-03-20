@@ -34,7 +34,8 @@ func SetupRouter(db *mongo.Database) *gin.Engine {
 		{
 			categories.GET("", categoryController.GetAllCategories)
 			categories.POST("", categoryController.CreateCategory)
-			categories.DELETE("/:id")
+			categories.PUT("/:id", categoryController.UpdateCategory)
+			categories.DELETE("/:id", categoryController.DeleteCategory)
 		}
 
 		// Account routes
@@ -43,8 +44,8 @@ func SetupRouter(db *mongo.Database) *gin.Engine {
 			accounts.GET("", accountsController.GetAllAccounts)
 			accounts.GET("/:id", accountsController.GetAccountById)
 			accounts.POST("", accountsController.CreateAccount)
-			accounts.DELETE("/:id")
 			accounts.PUT("/:id", accountsController.UpdateAccount)
+			accounts.DELETE("/:id", accountsController.DeleteAccount)
 		}
 	}
 
