@@ -1,0 +1,22 @@
+meta {
+  name: update-transaction
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/transactions/67db88b88065800853919ec2
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "amount": 50,
+    "date": "2025-03-20T22:46:08.249Z",
+    "description": "first transaction",
+    "category_id":"67da408c2f451f5740c9fdf4",
+    "type": "expense",
+    "account_id": "67db4bff2ac8a6b1dd890afb"
+  }
+}

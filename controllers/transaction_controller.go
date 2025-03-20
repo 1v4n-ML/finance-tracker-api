@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/1v4n-ML/finance-tracker-api/models"
 	"github.com/gin-gonic/gin"
@@ -76,6 +77,7 @@ func (tc *TransactionController) Create(c *gin.Context) {
 	ctx := context.Background()
 
 	transaction.ID = primitive.NewObjectID()
+	transaction.CreatedAt = time.Now()
 	result, err := tc.col.InsertOne(ctx, transaction)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -100,7 +102,7 @@ func (tc *TransactionController) Update(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-
+	transaction.UpdatedAt = time.Now()
 	_, err = tc.col.UpdateOne(
 		ctx,
 		bson.M{"_id": id},

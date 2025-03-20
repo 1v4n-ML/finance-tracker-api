@@ -98,6 +98,7 @@ func (ac *AccountController) UpdateAccount(c *gin.Context) {
 		return
 	}
 
+	account.UpdatedAt = time.Now()
 	_, err = ac.col.UpdateOne(
 		ctx,
 		bson.M{"_id": id},

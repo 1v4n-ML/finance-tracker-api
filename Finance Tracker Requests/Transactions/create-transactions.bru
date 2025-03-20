@@ -1,0 +1,22 @@
+meta {
+  name: create-transactions
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/transactions
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "amount": 120,
+    "date": "2025-03-10T22:46:08.249Z",
+    "description": "third transaction",
+    "category_id":"67da408c2f451f5740c9fdf4",
+    "type": "income",
+    "account_id": "67db4bff2ac8a6b1dd890afb"
+  }
+}

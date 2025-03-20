@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/1v4n-ML/finance-tracker-api/models"
 	"github.com/gin-gonic/gin"
@@ -56,6 +57,7 @@ func (tc *CategoryController) CreateCategory(c *gin.Context) {
 	ctx := context.Background()
 
 	category.ID = primitive.NewObjectID()
+	category.CreatedAt = time.Now()
 	result, err := tc.col.InsertOne(ctx, category)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -79,6 +81,8 @@ func (cc *CategoryController) UpdateCategory(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	category.UpdatedAt = time.Now()
 	_, err = cc.col.UpdateOne(
 		ctx,
 		bson.M{"_id": id},
