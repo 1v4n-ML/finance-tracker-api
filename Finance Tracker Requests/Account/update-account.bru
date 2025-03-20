@@ -1,0 +1,20 @@
+meta {
+  name: update-account
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/accounts/67db4bff2ac8a6b1dd890afb
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "test",
+    "type": "bank",
+    "color": "red",
+    "payday": 20
+  }
+}

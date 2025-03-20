@@ -1,0 +1,52 @@
+// routes/routes.go
+package routes
+
+import (
+	"github.com/1v4n-ML/finance-tracker-api/controllers"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
+// SetupRouter configures the API routes and returns the router
+func SetupRouter(db *mongo.Database) *gin.Engine {
+	router := gin.Default()
+
+	// Create controllers with database dependency
+	transactionController := controllers.NewTransactionController(db)
+	categoryController := controllers.NewCategoryController(db)
+	accountsController := controllers.NewAccountController(db)
+
+	// API routes - no authentication needed
+	api := router.Group("/api")
+	{
+		// Transaction routes
+		transactions := api.Group("/transactions")
+		{
+			transactions.GET("", transactionController.GetAll)
+			transactions.GET("/:id", transactionController.GetByID)
+			transactions.POST("", transactionController.Create)
+			transactions.PUT("/:id", transactionController.Update)
+			transactions.DELETE("/:id", transactionController.Delete)
+		}
+
+		// Category routes
+		categories := api.Group("/categories")
+		{
+			categories.GET("", categoryController.GetAllCategories)
+			categories.POST("", categoryController.CreateCategory)
+			categories.DELETE("/:id")
+		}
+
+		// Account routes
+		accounts := api.Group("/accounts")
+		{
+			accounts.GET("", accountsController.GetAllAccounts)
+			accounts.GET("/:id", accountsController.GetAccountById)
+			accounts.POST("", accountsController.CreateAccount)
+			accounts.DELETE("/:id")
+			accounts.PUT("/:id", accountsController.UpdateAccount)
+		}
+	}
+
+	return router
+}
