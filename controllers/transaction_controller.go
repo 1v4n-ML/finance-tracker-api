@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/1v4n-ML/finance-tracker-api/models"
+	"github.com/1v4n-ML/finance-tracker-api/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -25,11 +26,30 @@ func NewTransactionController(db *mongo.Database) *TransactionController {
 func (tc *TransactionController) GetAll(c *gin.Context) {
 	ctx := context.Background()
 
-	cursor, err := tc.col.Find(ctx, bson.M{})
+	startDate, err := utils.ParseDateToISO(c.Query("start_date"))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		//dunno what to do
 	}
+	endDate, err := utils.ParseDateToISO(c.Query("end_date"))
+	if err != nil {
+		//dunno what to do
+	}
+
+	var cursor *mongo.Cursor
+	if startDate.IsZero() && endDate.IsZero() {
+		cursor, err = tc.col.Find(ctx, bson.M{})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "query fucked up smh"})
+			return
+		}
+	} else {
+		cursor, err = tc.col.Find(ctx, bson.M{"date": bson.M{"$gte": startDate, "$lte": endDate}})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "query fucked up smh"})
+			return
+		}
+	}
+
 	defer func(cursor *mongo.Cursor, ctx context.Context) {
 		err := cursor.Close(ctx)
 		if err != nil {

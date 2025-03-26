@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,10 +29,9 @@ type Config struct {
 func LoadConfig() *Config {
 	config := &Config{}
 
-	config.MongoDB.URI = "mongodb://localhost:27017/"
-	config.MongoDB.Database = "finance_tracker"
-	config.MongoDB.Collection = "transactions"
-	config.Server.Port = "8080"
+	config.MongoDB.URI = os.Getenv("DB_URI")
+	config.MongoDB.Database = os.Getenv("DB_DATABASE")
+	config.Server.Port = os.Getenv("SERVER_PORT")
 	config.JWT.Secret = "your-secret-key" // Use environment variable in production
 
 	return config

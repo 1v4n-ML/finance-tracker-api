@@ -36,8 +36,8 @@ type Account struct {
 	Type       string             `json:"type" bson:"type" binding:"required,oneof=wallet bank credit_card"`
 	Balance    float64            `json:"balance" bson:"balance"`
 	Color      string             `json:"color,omitempty" bson:"color,omitempty"` // For UI representation
-	ClosureDay int                `json:"closure_day" bson:"closure_day" binding:"gte=1,lte=31,required_if=Type credit_card"`
-	PayDay     int                `json:"payday" bson:"payday" binding:"required_with=ClosureDay,gte=1,lte=31,"`
+	ClosureDay int                `json:"closure_day" bson:"closure_day" binding:"omitempty,required_if=Type credit_card,gte=1,lte=31"`
+	PayDay     int                `json:"payday" bson:"payday" binding:"omitempty,required_with=ClosureDay,gte=1,lte=31"`
 	CreatedAt  time.Time          `json:"created_at" bson:"created_at"`
 	UpdatedAt  time.Time          `json:"updated_at" bson:"updated_at"`
 }

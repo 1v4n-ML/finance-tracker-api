@@ -5,7 +5,12 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/transactions
+  url: {{baseUrl}}/transactions?start_date=10-03-2024&end_date=31-12-2025
   body: none
   auth: none
+}
+
+params:query {
+  start_date: 10-03-2024
+  end_date: 31-12-2025
 }

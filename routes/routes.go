@@ -3,6 +3,7 @@ package routes
 
 import (
 	"github.com/1v4n-ML/finance-tracker-api/controllers"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -10,6 +11,14 @@ import (
 // SetupRouter configures the API routes and returns the router
 func SetupRouter(db *mongo.Database) *gin.Engine {
 	router := gin.Default()
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, //this should be more restricted for prod
+		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	// Create controllers with database dependency
 	transactionController := controllers.NewTransactionController(db)

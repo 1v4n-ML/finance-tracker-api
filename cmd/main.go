@@ -3,10 +3,13 @@ package main
 import (
 	"github.com/1v4n-ML/finance-tracker-api/config"
 	"github.com/1v4n-ML/finance-tracker-api/routes"
-	"log"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	//Load .env variables
+	godotenv.Load("/home/minhoca-manca/Go_dev/finance-tracker-api/.env")
+
 	// Initialize configuration
 	cfg := config.LoadConfig()
 
@@ -17,6 +20,5 @@ func main() {
 	router := routes.SetupRouter(db)
 
 	// Start server
-	log.Printf("Starting server on port %s", cfg.Server.Port)
 	router.Run(":" + cfg.Server.Port)
 }
