@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/1v4n-ML/finance-tracker-api/config"
 	"github.com/1v4n-ML/finance-tracker-api/models"
+	"github.com/1v4n-ML/finance-tracker-api/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,14 +17,20 @@ import (
 type AccountController struct {
 	db  *mongo.Database
 	col *mongo.Collection
+	cfg *config.Config
 }
 
-func NewAccountController(db *mongo.Database) *AccountController {
-	return &AccountController{db: db, col: db.Collection("accounts")}
+func NewAccountController(db *mongo.Database, cfg *config.Config) *AccountController {
+	return &AccountController{
+		db:  db,
+		col: db.Collection("accounts"),
+		cfg: cfg,
+	}
 }
 
 func (ac *AccountController) GetAllAccounts(c *gin.Context) {
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), ac.cfg.Timeouts.Request)
+	defer cancel()
 
 	cursor, err := ac.col.Find(ctx, bson.M{})
 	if err != nil {
@@ -44,7 +52,9 @@ func (ac *AccountController) GetAllAccounts(c *gin.Context) {
 }
 
 func (ac *AccountController) GetAccountById(c *gin.Context) {
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), ac.cfg.Timeouts.Request)
+	defer cancel()
+
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
@@ -63,7 +73,9 @@ func (ac *AccountController) GetAccountById(c *gin.Context) {
 }
 
 func (ac *AccountController) CreateAccount(c *gin.Context) {
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), ac.cfg.Timeouts.Request)
+	defer cancel()
+
 	var account models.Account
 
 	if err := c.ShouldBindJSON(&account); err != nil {
@@ -84,7 +96,8 @@ func (ac *AccountController) CreateAccount(c *gin.Context) {
 }
 
 func (ac *AccountController) UpdateAccount(c *gin.Context) {
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), ac.cfg.Timeouts.Request)
+	defer cancel()
 
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {
@@ -113,7 +126,8 @@ func (ac *AccountController) UpdateAccount(c *gin.Context) {
 }
 
 func (ac *AccountController) DeleteAccount(c *gin.Context) {
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), ac.cfg.Timeouts.Request)
+	defer cancel()
 
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {

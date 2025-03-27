@@ -16,10 +16,15 @@ import (
 type ReportsController struct {
 	db  *mongo.Database
 	col *mongo.Collection
+	cfg *config.Config
 }
 
-func NewReportsController(db *mongo.Database) *ReportsController {
-	return &ReportsController{db: db, col: db.Collection("reports")}
+func NewReportsController(db *mongo.Database, cfg *config.Config) *ReportsController {
+	return &ReportsController{
+		db:  db,
+		col: db.Collection("reports"),
+		cfg: cfg,
+	}
 }
 
 func (rc *ReportsController) AggregateTransactions(c *gin.Context) {
@@ -42,7 +47,7 @@ func (rc *ReportsController) AggregateTransactions(c *gin.Context) {
 	log.Printf("Executing aggregation pipeline: %+v\n", pipeline)
 
 	// Execute the aggregation query
-	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), config.LoadConfig().Timeouts.Report)
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), rc.cfg.Timeouts.Request)
 	defer cancel()
 
 	// Assuming transactionCollection is initialized

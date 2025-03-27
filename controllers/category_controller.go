@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/1v4n-ML/finance-tracker-api/config"
 	"github.com/1v4n-ML/finance-tracker-api/models"
+	"github.com/1v4n-ML/finance-tracker-api/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,17 +17,23 @@ import (
 type CategoryController struct {
 	db  *mongo.Database
 	col *mongo.Collection
+	cfg *config.Config
 }
 
-func NewCategoryController(db *mongo.Database) *CategoryController {
-	return &CategoryController{db: db, col: db.Collection("categories")}
+func NewCategoryController(db *mongo.Database, cfg *config.Config) *CategoryController {
+	return &CategoryController{
+		db:  db,
+		col: db.Collection("categories"),
+		cfg: cfg,
+	}
 }
 
 // GetAllCategories returns all categories
-func (tc *CategoryController) GetAllCategories(c *gin.Context) {
-	ctx := context.Background()
+func (cc *CategoryController) GetAllCategories(c *gin.Context) {
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), cc.cfg.Timeouts.Request)
+	defer cancel()
 
-	cursor, err := tc.col.Find(ctx, bson.M{})
+	cursor, err := cc.col.Find(ctx, bson.M{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -47,18 +55,19 @@ func (tc *CategoryController) GetAllCategories(c *gin.Context) {
 }
 
 // CreateCategory adds a new category
-func (tc *CategoryController) CreateCategory(c *gin.Context) {
+func (cc *CategoryController) CreateCategory(c *gin.Context) {
 	var category models.Category
 	if err := c.ShouldBindJSON(&category); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), cc.cfg.Timeouts.Request)
+	defer cancel()
 
 	category.ID = primitive.NewObjectID()
 	category.CreatedAt = time.Now()
-	result, err := tc.col.InsertOne(ctx, category)
+	result, err := cc.col.InsertOne(ctx, category)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -68,7 +77,8 @@ func (tc *CategoryController) CreateCategory(c *gin.Context) {
 }
 
 func (cc *CategoryController) UpdateCategory(c *gin.Context) {
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), cc.cfg.Timeouts.Request)
+	defer cancel()
 
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {
@@ -97,7 +107,8 @@ func (cc *CategoryController) UpdateCategory(c *gin.Context) {
 }
 
 func (cc *CategoryController) DeleteCategory(c *gin.Context) {
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), cc.cfg.Timeouts.Request)
+	defer cancel()
 
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {

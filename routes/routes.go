@@ -2,6 +2,7 @@
 package routes
 
 import (
+	"github.com/1v4n-ML/finance-tracker-api/config"
 	"github.com/1v4n-ML/finance-tracker-api/controllers"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,7 @@ import (
 )
 
 // SetupRouter configures the API routes and returns the router
-func SetupRouter(db *mongo.Database) *gin.Engine {
+func SetupRouter(db *mongo.Database, cfg *config.Config) *gin.Engine {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
@@ -21,10 +22,10 @@ func SetupRouter(db *mongo.Database) *gin.Engine {
 	}))
 
 	// Create controllers with database dependency
-	transactionController := controllers.NewTransactionController(db)
-	categoryController := controllers.NewCategoryController(db)
-	accountsController := controllers.NewAccountController(db)
-	reportsController := controllers.NewReportsController(db)
+	transactionController := controllers.NewTransactionController(db, cfg)
+	categoryController := controllers.NewCategoryController(db, cfg)
+	accountsController := controllers.NewAccountController(db, cfg)
+	reportsController := controllers.NewReportsController(db, cfg)
 
 	// API routes - no authentication needed
 	api := router.Group("/api")

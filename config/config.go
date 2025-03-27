@@ -15,15 +15,13 @@ import (
 const (
 	// Environment variable names for timeouts (in milliseconds)
 	dbTimeoutEnvVar     = "TIMEOUT_MS_DATABASE"
-	reportTimeoutEnvVar = "TIMEOUT_MS_REPORT"
-	apiTimeoutEnvVar    = "TIMEOUT_MS_EXTERNAL_API" // Added for potential future use
+	reportTimeoutEnvVar = "TIMEOUT_MS_REQUEST"
 
 	// Default timeout durations
-	defaultDbTimeout     = 5 * time.Second  // Default for standard DB operations
-	defaultReportTimeout = 30 * time.Second // Default for reports/aggregations
-	defaultApiTimeout    = 15 * time.Second // Default for external API calls
-	defaultServerPort    = "8080"           // Default server port
-	connectTimeout       = 10 * time.Second // Timeout for initial DB connection
+	defaultDbTimeout      = 5 * time.Second  // Default for standard DB operations
+	defaultRequestTimeout = 30 * time.Second // Default for reports/aggregations
+	defaultServerPort     = "8080"           // Default server port
+	connectTimeout        = 10 * time.Second // Timeout for initial DB connection
 )
 
 // Config holds all configuration for the application
@@ -37,9 +35,8 @@ type Config struct {
 		Port string
 	}
 	Timeouts struct { // New struct for timeouts
-		Database    time.Duration
-		Report      time.Duration
-		ExternalAPI time.Duration
+		Database time.Duration
+		Request  time.Duration
 	}
 }
 
@@ -62,11 +59,10 @@ func LoadConfig() *Config {
 
 	// --- Timeout Configuration ---
 	config.Timeouts.Database = utils.ParseTimeout(dbTimeoutEnvVar, defaultDbTimeout)
-	config.Timeouts.Report = utils.ParseTimeout(reportTimeoutEnvVar, defaultReportTimeout)
-	config.Timeouts.ExternalAPI = utils.ParseTimeout(apiTimeoutEnvVar, defaultApiTimeout)
+	config.Timeouts.Request = utils.ParseTimeout(reportTimeoutEnvVar, defaultRequestTimeout)
 
 	log.Printf("Loaded configuration: Port=%s, DB=%s", config.Server.Port, config.MongoDB.Database)
-	log.Printf("Loaded timeouts: DB=%v, Report=%v, API=%v", config.Timeouts.Database, config.Timeouts.Report, config.Timeouts.ExternalAPI)
+	log.Printf("Loaded timeouts: DB=%v, Request=%v", config.Timeouts.Database, config.Timeouts.Request)
 
 	return config
 }

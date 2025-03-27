@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/1v4n-ML/finance-tracker-api/config"
 	"github.com/1v4n-ML/finance-tracker-api/models"
 	"github.com/1v4n-ML/finance-tracker-api/utils"
 	"github.com/gin-gonic/gin"
@@ -16,15 +17,21 @@ import (
 type TransactionController struct {
 	db  *mongo.Database
 	col *mongo.Collection
+	cfg *config.Config
 }
 
-func NewTransactionController(db *mongo.Database) *TransactionController {
-	return &TransactionController{db: db, col: db.Collection("transactions")}
+func NewTransactionController(db *mongo.Database, cfg *config.Config) *TransactionController {
+	return &TransactionController{
+		db:  db,
+		col: db.Collection("transactions"),
+		cfg: cfg,
+	}
 }
 
 // GetAll returns all transactions
 func (tc *TransactionController) GetAll(c *gin.Context) {
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), tc.cfg.Timeouts.Request)
+	defer cancel()
 
 	startDate, err := utils.ParseDateToISO(c.Query("start_date"))
 	if err != nil {
@@ -75,7 +82,8 @@ func (tc *TransactionController) GetByID(c *gin.Context) {
 	}
 
 	var transaction models.Transaction
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), tc.cfg.Timeouts.Request)
+	defer cancel()
 
 	err = tc.col.FindOne(ctx, bson.M{"_id": id}).Decode(&transaction)
 	if err != nil {
@@ -94,7 +102,8 @@ func (tc *TransactionController) Create(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), tc.cfg.Timeouts.Request)
+	defer cancel()
 
 	transaction.ID = primitive.NewObjectID()
 	transaction.CreatedAt = time.Now()
@@ -121,7 +130,9 @@ func (tc *TransactionController) Update(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), tc.cfg.Timeouts.Request)
+	defer cancel()
+
 	transaction.UpdatedAt = time.Now()
 	_, err = tc.col.UpdateOne(
 		ctx,
@@ -144,7 +155,8 @@ func (tc *TransactionController) Delete(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), tc.cfg.Timeouts.Request)
+	defer cancel()
 
 	_, err = tc.col.DeleteOne(ctx, bson.M{"_id": id})
 	if err != nil {
