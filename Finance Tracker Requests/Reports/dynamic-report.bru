@@ -1,0 +1,44 @@
+meta {
+  name: dynamic-report
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/report
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-api-key: {{x-api-key}}
+}
+
+body:json {
+  {
+    "filters": [
+      {
+        "field": "category_id",
+        "operator": "eq",
+        "value": "67da408c2f451f5740c9fdf4"
+      },
+      {
+        "field": "account_id",
+        "operator": "eq",
+        "value": "67db4bff2ac8a6b1dd890afb"
+      }
+    ],
+    "groupBy": ["category_id", "account_id"],
+    "metrics": [
+      {
+        "name": "totalAmountForCombo",
+        "operation": "sum",
+        "field": "amount"
+      },
+       {
+        "name": "countForCombo",
+        "operation": "count"
+      }
+    ]
+  }
+}

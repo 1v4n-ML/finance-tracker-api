@@ -22,7 +22,7 @@ type ReportsController struct {
 func NewReportsController(db *mongo.Database, cfg *config.Config) *ReportsController {
 	return &ReportsController{
 		db:  db,
-		col: db.Collection("reports"),
+		col: db.Collection("transactions"),
 		cfg: cfg,
 	}
 }

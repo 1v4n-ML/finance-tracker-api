@@ -38,6 +38,7 @@ type Config struct {
 		Database time.Duration
 		Request  time.Duration
 	}
+	ApiToken string
 }
 
 // LoadConfig loads configuration from environment variables or defaults
@@ -63,6 +64,13 @@ func LoadConfig() *Config {
 
 	log.Printf("Loaded configuration: Port=%s, DB=%s", config.Server.Port, config.MongoDB.Database)
 	log.Printf("Loaded timeouts: DB=%v, Request=%v", config.Timeouts.Database, config.Timeouts.Request)
+
+	// --- Authentication ---
+	config.ApiToken = os.Getenv("API_SECRET_TOKEN")
+	if config.ApiToken == "" {
+		log.Println("WARNING: API_SECRET_TOKEN is not set. API will be insecure.")
+		log.Fatal()
+	}
 
 	return config
 }

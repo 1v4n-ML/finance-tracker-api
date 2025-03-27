@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/1v4n-ML/finance-tracker-api/config"
 	"github.com/1v4n-ML/finance-tracker-api/routes"
 	"github.com/joho/godotenv"
@@ -22,5 +24,11 @@ func main() {
 	router := routes.SetupRouter(db, AppConfig)
 
 	// Start server
-	router.Run(":" + AppConfig.Server.Port)
+	// Listen on all interfaces (0.0.0.0) on the specified port
+	listenAddr := "0.0.0.0:" + AppConfig.Server.Port
+	log.Printf("Starting server on %s", listenAddr)
+	err := router.Run(listenAddr)
+	if err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }

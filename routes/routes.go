@@ -4,6 +4,7 @@ package routes
 import (
 	"github.com/1v4n-ML/finance-tracker-api/config"
 	"github.com/1v4n-ML/finance-tracker-api/controllers"
+	"github.com/1v4n-ML/finance-tracker-api/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -29,6 +30,7 @@ func SetupRouter(db *mongo.Database, cfg *config.Config) *gin.Engine {
 
 	// API routes - no authentication needed
 	api := router.Group("/api")
+	api.Use(middleware.AuthMiddleware(cfg))
 	{
 		// Transaction routes
 		transactions := api.Group("/transactions")
