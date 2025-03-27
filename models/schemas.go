@@ -41,3 +41,24 @@ type Account struct {
 	CreatedAt  time.Time          `json:"created_at" bson:"created_at"`
 	UpdatedAt  time.Time          `json:"updated_at" bson:"updated_at"`
 }
+
+type Filter struct {
+	Field    string      `json:"field" binding:"required"`
+	Operator string      `json:"operator" binding:"required,oneof=eq ne gt gte lt lte in nin"`
+	Value    interface{} `json:"value" binding:"required"` // Use interface{} to accept various types (string, number, array, date string)
+}
+
+type Metric struct {
+	Name      string `json:"name" binding:"required"`
+	Operation string `json:"operation" binding:"required,oneof=sum count avg"`
+	Field     string `json:"field,omitempty"` // Optional, but required for sum/avg
+}
+
+type AggregationRequest struct {
+	Filters []Filter       `json:"filters"`
+	GroupBy []string       `json:"groupBy" binding:"required,min=1"`
+	Metrics []Metric       `json:"metrics" binding:"required,min=1"`
+	SortBy  map[string]int `json:"sortBy"` // Key: field name, Value: 1 (asc) or -1 (desc)
+	Limit   *int64         `json:"limit"`  // Use pointer for optional field
+	Offset  *int64         `json:"offset"` // Use pointer for optional field
+}

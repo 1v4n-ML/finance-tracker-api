@@ -24,6 +24,7 @@ func SetupRouter(db *mongo.Database) *gin.Engine {
 	transactionController := controllers.NewTransactionController(db)
 	categoryController := controllers.NewCategoryController(db)
 	accountsController := controllers.NewAccountController(db)
+	reportsController := controllers.NewReportsController(db)
 
 	// API routes - no authentication needed
 	api := router.Group("/api")
@@ -55,6 +56,12 @@ func SetupRouter(db *mongo.Database) *gin.Engine {
 			accounts.POST("", accountsController.CreateAccount)
 			accounts.PUT("/:id", accountsController.UpdateAccount)
 			accounts.DELETE("/:id", accountsController.DeleteAccount)
+		}
+
+		// Report route
+		reports := api.Group("/report")
+		{
+			reports.POST("", reportsController.AggregateTransactions)
 		}
 	}
 
