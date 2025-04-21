@@ -19,7 +19,7 @@ services:
       - TIMEOUT_MS_DATABASE=5000
       - TIMEOUT_MS_REQUEST=10000
       # Databse variables
-      - DB_DATABASE="finance_tracker"
+      - DB_DATABASE=finance_tracker
       - DB_URI=mongodb://mongodb:27017/
       # Set Gin to release mode for production performance/logging
       - GIN_MODE=release
