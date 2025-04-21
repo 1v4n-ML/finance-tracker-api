@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Your Go API Service
+  myapi:
+    container_name: financial_tracker_api # A friendly name for the container
+    build:
+      context: . # Use the current directory (where this file is) as build context
+      dockerfile: Dockerfile # Specify the Dockerfile name
+    ports:
+      # Map port 8080 on the HOST server to port 8080 in the CONTAINER
+      # Your API will be accessible via http://<your_server_ip>:8080
+      # You can change the HOST port (left side) if 8080 is busy on your server (e.g., "8090:8080")
+      - "8080:8080"
+    environment:
+      # --- Pass environment variables required by your Go App (loaded by Viper) ---
+      # PORT tells Gin which port to listen on *inside* the container.
+      # This MUST match the port exposed in the Dockerfile (right side of 'ports:')
+      - PORT=8080
+      # MONGODB_URI points to the 'mongodb' service defined below.
+      # Docker Compose networking handles the name resolution.
+      # Replace 'financial_tracker' if your database name is different.
+      - MONGODB_URI=mongodb://mongodb:27017/financial_tracker
+      # Set Gin to release mode for production performance/logging
+      - GIN_MODE=release
+      # Add any other environment variables your config/config.go expects
+      # - JWT_SECRET=your_production_jwt_secret # Example: Get this from Portainer secrets/env vars
+      # - SOME_OTHER_API_KEY=xxxxx
+    depends_on:
+      # Wait for the mongodb service to start before starting the api
+      - mongodb
+    restart: unless-stopped # Keep the service running
+    networks:
+      # Connect to the custom network defined below
+      - financial-tracker-net
+
+  # MongoDB Service
+  mongodb:
+    image: mongo:7 # Use a specific recent version (e.g., 7, 6) or 'latest'
+    container_name: financial_tracker_db
+    ports:
+      # Only uncomment this if you NEED to access the MongoDB directly
+      # from your host machine (e.g., with MongoDB Compass).
+      # The API container accesses it via the internal Docker network.
+      # - "27017:27017"
+    volumes:
+      # Persist MongoDB data using a named volume managed by Docker.
+      # This is CRITICAL so your data isn't lost when the container stops/restarts.
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    networks:
+      - financial-tracker-net
+    # Optional: Add MongoDB Authentication (Recommended for production)
+    # Define these ONLY when creating the database for the FIRST time
+    # Or if migrating data that already uses these credentials.
+    # environment:
+    #   - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+    #   - MONGO_INITDB_ROOT_PASSWORD=your_very_secret_mongo_password # Store securely!
+
+# Define Networks
+networks:
+  financial-tracker-net:
+    driver: bridge # Use the default bridge network driver
+
+# Define Volumes
+volumes:
+  mongodb_data: {} # Declare the named volume; Docker manages its storage location.
+                  # Do NOT use 'external: true' here if this stack manages the volume.

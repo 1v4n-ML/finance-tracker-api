@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -99,6 +100,7 @@ func (tc *TransactionController) Create(c *gin.Context) {
 	var transaction models.Transaction
 	if err := c.ShouldBindJSON(&transaction); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		log.Default().Println(err.Error())
 		return
 	}
 
@@ -110,6 +112,7 @@ func (tc *TransactionController) Create(c *gin.Context) {
 	result, err := tc.col.InsertOne(ctx, transaction)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Default().Println(err.Error())
 		return
 	}
 
