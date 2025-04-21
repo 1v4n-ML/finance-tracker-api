@@ -14,10 +14,10 @@ services:
       - "8080:8080"
     environment:
       # --- Pass environment variables required by your Go App (loaded by Viper) ---
-      - DATE_LAYOUT="02-01-2006
-      - SERVER_PORT="8080"
-      - TIMEOUT_MS_DATABASE="5000"
-      - TIMEOUT_MS_REQUEST="10000"
+      - DATE_LAYOUT=02-01-2006
+      - SERVER_PORT=8080
+      - TIMEOUT_MS_DATABASE=5000
+      - TIMEOUT_MS_REQUEST=10000
       # Databse variables
       - DB_DATABASE="finance_tracker"
       - DB_URI=mongodb://mongodb:27017/
