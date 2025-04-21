@@ -36,7 +36,7 @@ services:
 
   # MongoDB Service
   mongodb:
-    image: mongo:7 # Use a specific recent version (e.g., 7, 6) or 'latest'
+    image: mongo:latest # Use a specific recent version (e.g., 7, 6) or 'latest'
     container_name: financial_tracker_db
     ports:
       # Only uncomment this if you NEED to access the MongoDB directly
