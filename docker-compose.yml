@@ -26,6 +26,7 @@ services:
       # Add any other environment variables your config/config.go expects
       # - JWT_SECRET=your_production_jwt_secret # Example: Get this from Portainer secrets/env vars
       # - SOME_OTHER_API_KEY=xxxxx
+      - API_SECRET_TOKEN
     depends_on:
       # Wait for the mongodb service to start before starting the api
       - mongodb
