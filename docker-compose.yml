@@ -14,13 +14,13 @@ services:
       - "8080:8080"
     environment:
       # --- Pass environment variables required by your Go App (loaded by Viper) ---
-      # PORT tells Gin which port to listen on *inside* the container.
-      # This MUST match the port exposed in the Dockerfile (right side of 'ports:')
-      - PORT=8080
-      # MONGODB_URI points to the 'mongodb' service defined below.
-      # Docker Compose networking handles the name resolution.
-      # Replace 'financial_tracker' if your database name is different.
-      - MONGODB_URI=mongodb://mongodb:27017/financial_tracker
+      - DATE_LAYOUT="02-01-2006
+      - SERVER_PORT="8080"
+      - TIMEOUT_MS_DATABASE="5000"
+      - TIMEOUT_MS_REQUEST="10000"
+      # Databse variables
+      - DB_DATABASE="finance_tracker"
+      - DB_URI=mongodb://mongodb:27017/
       # Set Gin to release mode for production performance/logging
       - GIN_MODE=release
       # Add any other environment variables your config/config.go expects
@@ -42,7 +42,7 @@ services:
       # Only uncomment this if you NEED to access the MongoDB directly
       # from your host machine (e.g., with MongoDB Compass).
       # The API container accesses it via the internal Docker network.
-      # - "27017:27017"
+      - "27017:27017"
     volumes:
       # Persist MongoDB data using a named volume managed by Docker.
       # This is CRITICAL so your data isn't lost when the container stops/restarts.
