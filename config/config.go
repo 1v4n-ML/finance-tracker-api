@@ -65,6 +65,9 @@ func LoadConfig() *Config {
 	log.Printf("Loaded configuration: Port=%s, DB=%s", config.Server.Port, config.MongoDB.Database)
 	log.Printf("Loaded timeouts: DB=%v, Request=%v", config.Timeouts.Database, config.Timeouts.Request)
 
+	envTestVar := os.Getenv("TESTENV")
+	log.Printf("DEBUG: env var loaded: '%s'", envTestVar)
+
 	// --- Authentication ---
 	config.ApiToken = os.Getenv("API_SECRET_TOKEN")
 	if config.ApiToken == "" {
