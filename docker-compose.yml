@@ -8,8 +8,6 @@ services:
       context: . # Use the current directory (where this file is) as build context
       dockerfile: Dockerfile # Specify the Dockerfile name
     ports:
-      # Map port 8080 on the HOST server to port 8080 in the CONTAINER
-      # Your API will be accessible via http://<your_server_ip>:8080
       # You can change the HOST port (left side) if 8080 is busy on your server (e.g., "8090:8080")
       - "8080:8080"
     environment:
@@ -23,40 +21,26 @@ services:
       - DB_URI=mongodb://mongodb:27017/
       # Set Gin to release mode for production performance/logging
       - GIN_MODE=release
-      # Add any other environment variables your config/config.go expects
-      # - JWT_SECRET=your_production_jwt_secret # Example: Get this from Portainer secrets/env vars
-      # - SOME_OTHER_API_KEY=xxxxx
-      - API_SECRET_TOKEN
+
+      - API_SECRET_TOKEN # DONT DELETE i dunno why but this has to be here for portainer
     depends_on:
-      # Wait for the mongodb service to start before starting the api
       - mongodb
     restart: unless-stopped # Keep the service running
     networks:
-      # Connect to the custom network defined below
       - financial-tracker-net
 
   # MongoDB Service
   mongodb:
-    image: mongo:latest # Use a specific recent version (e.g., 7, 6) or 'latest'
+    image: mongo:latest 
     container_name: financial_tracker_db
     ports:
-      # Only uncomment this if you NEED to access the MongoDB directly
-      # from your host machine (e.g., with MongoDB Compass).
-      # The API container accesses it via the internal Docker network.
       - "27017:27017"
     volumes:
       # Persist MongoDB data using a named volume managed by Docker.
-      # This is CRITICAL so your data isn't lost when the container stops/restarts.
       - mongodb_data:/data/db
     restart: unless-stopped
     networks:
       - financial-tracker-net
-    # Optional: Add MongoDB Authentication (Recommended for production)
-    # Define these ONLY when creating the database for the FIRST time
-    # Or if migrating data that already uses these credentials.
-    # environment:
-    #   - MONGO_INITDB_ROOT_USERNAME=mongoadmin
-    #   - MONGO_INITDB_ROOT_PASSWORD=your_very_secret_mongo_password # Store securely!
 
 # Define Networks
 networks:
