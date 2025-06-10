@@ -2,13 +2,17 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"time"
 
+	"github.com/1v4n-ML/finance-tracker-api/models"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func ParseDateToISO(date string) (time.Time, error) {
@@ -187,4 +191,74 @@ func GetEnvOrDefault(key, defaultValue string) string {
 		return defaultValue
 	}
 	return value
+}
+
+func UpdateAccountBalanceOnTransaction(ctx context.Context, db *mongo.Database, transaction models.Transaction, changeFactor float64) error {
+	if transaction.Account.IsZero() {
+		return errors.New("transação não possui uma conta associada")
+	}
+
+	// Define o valor da mudança: positivo para income, negativo para expense
+	changeAmount := transaction.Amount
+	if transaction.Type == "expense" {
+		changeAmount = -transaction.Amount
+	}
+
+	// Aplica o fator de mudança (para tratar deleções)
+	finalChange := changeAmount * changeFactor
+
+	accountsCollection := db.Collection("accounts")
+	_, err := accountsCollection.UpdateOne(
+		ctx,
+		bson.M{"_id": transaction.Account},
+		bson.M{"$inc": bson.M{"balance": finalChange}},
+	)
+
+	if err != nil {
+		return fmt.Errorf("falha ao atualizar saldo da conta %s: %w", transaction.Account.Hex(), err)
+	}
+
+	return nil
+}
+
+func RecalculateAllBalancesService(db *mongo.Database, ctx context.Context) {
+	log.Println("Iniciando tarefa agendada: Recalculando todos os saldos...")
+
+	accountsCol := db.Collection("accounts")
+	transactionsCol := db.Collection("transactions")
+
+	// 1. Zera o saldo de todas as contas
+	_, err := accountsCol.UpdateMany(ctx, bson.M{}, bson.M{"$set": bson.M{"balance": 0}})
+	if err != nil {
+		log.Printf("ERRO no scheduler: Falha ao zerar saldos: %v", err)
+		return
+	}
+
+	// 2. Busca todas as transações
+	cursor, err := transactionsCol.Find(ctx, bson.M{})
+	if err != nil {
+		log.Printf("ERRO no scheduler: Falha ao buscar transações: %v", err)
+		return
+	}
+	defer cursor.Close(ctx)
+
+	// 3. Itera sobre cada transação e atualiza o saldo da conta correspondente
+	for cursor.Next(ctx) {
+		var trans models.Transaction
+		if err := cursor.Decode(&trans); err != nil {
+			log.Printf("ERRO no scheduler: Falha ao decodificar transação durante recalculo: %v", err)
+			continue
+		}
+
+		// Reutiliza a função que já temos!
+		if err := UpdateAccountBalanceOnTransaction(ctx, db, trans, 1.0); err != nil {
+			log.Printf("ERRO no scheduler: Falha ao atualizar saldo para transação %s: %v", trans.ID.Hex(), err)
+		}
+	}
+
+	if err := cursor.Err(); err != nil {
+		log.Printf("ERRO no scheduler: Erro no cursor de transações: %v", err)
+	}
+
+	log.Println("Tarefa finalizada: Saldos recalculados com sucesso.")
 }

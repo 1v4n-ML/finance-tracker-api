@@ -143,3 +143,12 @@ func (ac *AccountController) DeleteAccount(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "account deleted"})
 }
+
+func (ac *AccountController) RecalculateAllBalances(c *gin.Context) {
+	ctx, cancel := utils.NewContextWithTimeout(c.Request.Context(), ac.cfg.Timeouts.Request)
+	defer cancel()
+
+	utils.RecalculateAllBalancesService(ac.db, ctx)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Todos os saldos foram recalculados com sucesso."})
+}

@@ -10,11 +10,15 @@ post {
   auth: none
 }
 
+headers {
+  x-api-key: {{x-api-key}}
+}
+
 body:json {
   {
-    "name":"lazer",
-    "description":"capivara",
-    "color": "red",
-    "type": "expense"
+    "name": "Aquisições",
+    "type": "expense",
+    "description": null,
+    "color": null
   }
 }

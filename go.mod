@@ -10,7 +10,10 @@ require (
 	go.mongodb.org/mongo-driver v1.17.3
 )
 
-require github.com/kr/text v0.2.0 // indirect
+require (
+	github.com/kr/text v0.2.0 // indirect
+	gopkg.in/robfig/cron.v2 v2.0.0-20150107220207-be2e0b0deed5 // indirect
+)
 
 require (
 	github.com/bytedance/sonic v1.13.2 // indirect

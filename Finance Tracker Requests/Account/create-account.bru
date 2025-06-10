@@ -10,10 +10,17 @@ post {
   auth: none
 }
 
+headers {
+  x-api-key: {{x-api-key}}
+}
+
 body:json {
   {
-    "name": "test",
-    "type": "bank",
-    "color": "red"
-  }
+      "name": "Casal",
+      "type": "credit_card",
+      "balance": 0.0,
+      "color": null,
+      "closure_day": 1,
+      "payday": 5
+    }
 }
