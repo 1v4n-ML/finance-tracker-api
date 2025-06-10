@@ -59,6 +59,7 @@ func SetupRouter(db *mongo.Database, cfg *config.Config) *gin.Engine {
 			accounts.POST("", accountsController.CreateAccount)
 			accounts.PUT("/:id", accountsController.UpdateAccount)
 			accounts.DELETE("/:id", accountsController.DeleteAccount)
+			accounts.POST("/recalculate-balances", accountsController.RecalculateAllBalances)
 		}
 
 		// Report route
