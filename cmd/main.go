@@ -28,7 +28,7 @@ func main() {
 
 	//Setup scheduler
 	c := cron.New()
-	_, err := c.AddFunc("*/3 * * *", func() {
+	_, err := c.AddFunc("*/3 * * * *", func() {
 		utils.RecalculateAllBalancesService(db, context.Background())
 	})
 	if err != nil {
